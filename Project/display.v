@@ -6,7 +6,7 @@ module display(rst, clk, scan_data, valid, r0,r1, en);
   reg [6:0]r0,r1;
   output reg en;
   reg [11:0]r8;
-  reg [2:0]r9;
+  reg r9;
   reg [6:0]w;
   
   initial en <= 0;
