@@ -1,14 +1,14 @@
 
-module textlcd(resetn,clk,output_command,LCD_E,LCD_RS,LCD_RW,LCD_DATA);
+module textlcd(resetn,clk,output_command,LCD_E,LCD_RS,LCD_RW,LCD_DATA, trial_left);
 
 input resetn,clk;
 input [2:0] output_command;    // 000 : correct!, 
-                               // 001 : game failed!,
+                               // 100 : game failed!,
                                // 010 : up, 
                                // 011 : down,
-                               // 100 : retry?
                                // 101 : game start!
                                // 110 : enter any number
+input [31:0] trial_left; 
 output LCD_E,LCD_RS,LCD_RW;
 output [7:0]LCD_DATA;
 
@@ -128,7 +128,7 @@ begin
                     default:begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
                 endcase
             end
-            3'b001 : begin // game failed!
+            3'b100 : begin // game failed!
                 case(CNT)
                     0:      begin LCD_RS = 1'b0;      LCD_DATA=8'b10000000;/*address*/ end
                     1:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01100111;/*g*/ end
@@ -194,28 +194,6 @@ begin
                     default:begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
                 endcase
             end
-            3'b100 : begin // retry?
-                case(CNT)
-                    0:      begin LCD_RS = 1'b0;      LCD_DATA=8'b10000000;/*address*/ end
-                    1:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01110010;/*r*/ end
-                    2:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01100101;/*e*/ end 
-                    3:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01110100;/*t*/ end
-                    4:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01110010;/*r*/ end
-                    5:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01111001;/*y*/ end
-                    6:      begin LCD_RS = 1'b1;      LCD_DATA=8'b00111111;/*?*/ end
-                    7:      begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    8:      begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    9:      begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    10:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    11:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    12:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    13:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    14:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    15:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    16:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                    default:begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
-                endcase
-            end
             3'b101 : begin // game start!
                 case(CNT)
                     0:      begin LCD_RS = 1'b0;      LCD_DATA=8'b10000000;/*address*/ end
@@ -264,9 +242,57 @@ begin
         end
         line2:         begin
             LCD_RW=1'b0;
-            case(CNT)
-                0:      begin LCD_RS=1'b0;        LCD_DATA=8'b11000000;/*address*/ end
-            endcase
+				if(output_command == 3'b100 || output_command == 3'b000) begin 
+                case(CNT)
+                    0:      begin LCD_RS = 1'b0;      LCD_DATA=8'b11000000;/*address*/ end
+                    1:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01110010;/*r*/ end
+                    2:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01100101;/*e*/ end 
+                    3:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01110100;/*t*/ end
+                    4:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01110010;/*r*/ end
+                    5:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01111001;/*y*/ end
+                    6:      begin LCD_RS = 1'b1;      LCD_DATA=8'b00111111;/*?*/ end
+                    7:      begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    8:      begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    9:      begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    10:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    11:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    12:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    13:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    14:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    15:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    16:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                    default:begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/**/ end
+                endcase
+				end 
+				else begin
+					case(CNT)
+						 0:      begin LCD_RS=1'b0;        LCD_DATA=8'b11000000;/*address*/ end
+						 1:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01110100;/*t*/ end
+						 2:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01110010;/*r*/ end
+						 3:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01101001;/*i*/ end
+						 4:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01100001;/*a*/ end
+						 5:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01101100;/*l*/ end
+						 6:      begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/* */ end
+						 7:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01101100;/*l*/ end
+						 8:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01100101;/*e*/ end
+						 9:      begin LCD_RS = 1'b1;      LCD_DATA=8'b01100110;/*f*/ end
+						 10:     begin LCD_RS = 1'b1;      LCD_DATA=8'b01110100;/*t*/ end
+						 11:     begin LCD_RS = 1'b1;      LCD_DATA=8'b00100000;/* */ end
+							  /* 숫자 */
+						 12:     begin LCD_RS = 1'b1;      
+									case(trial_left)
+										1:				LCD_DATA=8'b00110001;
+										2: 			LCD_DATA=8'b00110010;
+										3: 			LCD_DATA=8'b00110011;
+										4: 			LCD_DATA=8'b00110100;
+										5: 			LCD_DATA=8'b00110101;
+										default: 	LCD_DATA=8'b00110110;
+									endcase 
+						 end
+						 default: begin LCD_RS = 1'b1; 		LCD_DATA=8'b00100000; end
+					endcase
+				end
+				
         end
         delay_t:         
         begin
