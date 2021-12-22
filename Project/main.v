@@ -1,5 +1,5 @@
 module main(
-    rst, clk, resetn, keypad_in, seg_display, array_en, LCD_E,LCD_RS,LCD_RW, LCD_DATA
+    rst, clk, keypad_in, seg_display, array_en, LCD_E,LCD_RS,LCD_RW, LCD_DATA
 );
 
     parameter   g_init = 3'b000,
@@ -14,9 +14,6 @@ module main(
     // 7segment output
     output [6:0]seg_display;
     output [7:0]array_en;
-
-    // textlcd input
-    input resetn;
 
     // textlcd output
     output LCD_E,LCD_RS,LCD_RW;
@@ -41,15 +38,15 @@ module main(
 
     reg[31:0] target;
 
-    integer trial_left = 3;
+    integer trial_left;
 
     keypad_scan KS(rst, clk, keypad_in, scan_out, valid);
     display DP(rst, clk, scan_out, valid, r0,r1, en);
     register RG1(clk, rst, r0, seg_0);
     register RG2(clk, rst, r1, seg_1);
     seg_controller SC(clk, rst, seg_0, seg_1, seg_display, array_en);
-    textlcd tlcd(rst, clk, output_command, LCD_E, LCD_RS, LCD_RW, LCD_DATA);
-    random_generator random_gen(clk, rand);
+    textlcd tlcd(rst, clk, output_command, LCD_E, LCD_RS, LCD_RW, LCD_DATA, trial_left);
+    random_generator random_gen(clk, random_number);
 
     reg_to_dec rtc(seg_0, seg_1, input_dec); // register에 저장된 7seg 신호를 10진법으로 바꾸는 모듈
 
@@ -59,6 +56,7 @@ module main(
                 output_command = 3'b110; // lcd에 enter any number 출력
                 target = random_number; // 랜덤 숫자 생성
                 state = g_ingame; // ingame state로 state 변경
+					 trial_left = 5; //시도 수 5 로 제한 
             end
             g_wrong:begin
                 state = g_ingame; // ingame state로 state 변경
@@ -96,8 +94,8 @@ module main(
             end
 
             g_gameend:begin
+					 output_command = 3'b100;
                 if(input_dec == 0) begin // 다시 안하는 경우
-                    
                 end
                 else if(input_dec == 1) begin // 다시 하는 경우
                     state = g_init;
